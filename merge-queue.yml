@@ -1,0 +1,28 @@
+name: 'Validation of PR to Able/Max Develop branch'
+on:
+  pull_request:
+    types: [ opened, reopened, synchronize, labeled ]
+    paths:
+      - 'src/**'
+      - 'src-org-dependent/**'
+      - 'devops-scripts/**'
+      - '.github/workflows/**'
+      - 'data/**'
+      - 'config/**'
+    branches:
+      - main
+  merge_group:
+    types: [checks_requested]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true    
+
+jobs:
+  merge_queue:
+    name: 'Merge Queue'
+    uses: ./.github/workflows/develop-merge-queue-validation.yml
+    with:
+      environment: 'MaxQA'
+      should_deploy_or_validate: ${{ github.event_name == 'pull_request' && 'validate' || 'deploy' }}
+    secrets: inherit
