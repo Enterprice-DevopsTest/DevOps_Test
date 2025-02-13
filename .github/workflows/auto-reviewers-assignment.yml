@@ -1,0 +1,63 @@
+name: Automatic Reviewers Assignment/Unassignment
+
+on:
+  pull_request:
+    types: [ ready_for_review, synchronize ]
+    branches:
+      - main*
+  
+  pull_request_review:
+    types: [ submitted ]
+
+  workflow_call:
+    inputs:
+      pr_result:
+        description: Status
+        type: string
+        required: false
+
+jobs:
+  assign_reviewers:
+    if: ${{ (inputs.pr_result == 'success' || github.event.action == 'ready_for_review' || github.event.action == 'submitted') && github.event.pull_request.draft == false }}
+    runs-on: ubuntu-latest
+    env:
+      TEAMLEADS: ${{ vars.TEAMLEADS }}
+      DEVELOPERS: ${{ vars.DEVELOPERS }}
+      ACTION_NAME: ${{ github.event.action }}
+      CHECK_RESULT: ${{ inputs.pr_result }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Assign Reviewers
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const path = require('path');
+            const assignReviewers = require(path.join(process.env.GITHUB_WORKSPACE, 'devops-scripts', 'assignReviewers.js'));
+            await assignReviewers({
+              github: github,
+              context: context,
+              processEnv: process.env
+            });
+
+  unassign_reviewers:
+    if: ${{ inputs.pr_result == '' && github.event.action == 'synchronize' && github.event.pull_request.draft == false }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Unassign Reviewers
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const path = require('path');
+            const unassignReviewers = require(path.join(process.env.GITHUB_WORKSPACE, 'devops-scripts', 'unassignReviewers.js'));
+            await unassignReviewers({
+              github: github,
+              context: context,
+            });
