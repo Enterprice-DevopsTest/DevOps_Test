@@ -15,7 +15,10 @@ on:
         description: Status
         type: string
         required: false
-
+permissions:
+  pull-requests: write
+  contents: read 
+  
 jobs:
   assign_reviewers:
     if: ${{ (inputs.pr_result == 'success' || github.event.action == 'ready_for_review' || github.event.action == 'submitted') && github.event.pull_request.draft == false }}
@@ -49,6 +52,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Current branch
+        run: |
+          echo "$GITHUB_BASE_REF"
+          echo "$GITHUB_HEAD_REF"
+          echo "start from main-pipeline"
       
       - name: Unassign Reviewers
         uses: actions/github-script@v6
