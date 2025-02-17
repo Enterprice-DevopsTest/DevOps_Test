@@ -19,6 +19,19 @@ concurrency:
   cancel-in-progress: true    
 
 jobs:
+  show-src:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get npm directory
+        id: npm-dir
+        run: |
+          echo "hello"
+          cat devops-scripts/assignReviewers.js
+
   merge_queue:
     name: 'Merge Queue'
     uses: ./.github/workflows/develop-merge-queue-validation.yml
