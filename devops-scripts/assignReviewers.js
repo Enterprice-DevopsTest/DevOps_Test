@@ -106,6 +106,6 @@ module.exports = async ({ github, context, processEnv }) => {
         });
         console.log(`Reviewers assigned: ${prReviewers}`);
     } else {
-        console.log(`No reviewers assigned.`);
+        console.log(`No reviewers assigned`);
     }
 };
