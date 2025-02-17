@@ -21,7 +21,7 @@ concurrency:
 jobs:
   merge_queue:
     name: 'Merge Queue'
-    uses: Enterprice-DevopsTest/DevOps_Test/.github/workflows/develop-merge-queue-validation.yml@main
+    uses: DevOps_Test/.github/workflows/develop-merge-queue-validation.yml@main
     with:
       environment: 'MaxQA'
       should_deploy_or_validate: ${{ github.event_name == 'pull_request' && 'validate' || 'deploy' }}
