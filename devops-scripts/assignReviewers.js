@@ -93,7 +93,7 @@ module.exports = async ({ github, context, processEnv }) => {
             prReviewers.push(techArch);
             console.log(`Tech Arch is ${techArch}`);
         } else {
-            console.log(`Team Lead ${lead} has not approved the latest commit.Tech Arch not assigned.`);
+            console.log(`Team Lead ${lead} has not approved the latest commit.Tech Arch not assigned`);
         }
     }
 
