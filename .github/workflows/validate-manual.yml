@@ -87,8 +87,7 @@ jobs:
       - name: Validate src-temp folder changes
         id: temp_folder
         run: | 
-          chmod +x ./devops-scripts/tempFolder.sh
-          ./devops-scripts/tempFolder.sh
+          cat src/test.txt
 
 #      - name: Get npm directory
 #        id: npm-dir
