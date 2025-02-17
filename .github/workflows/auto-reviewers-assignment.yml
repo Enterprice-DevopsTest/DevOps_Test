@@ -55,6 +55,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            console.log('pipelines branch);
             const path = require('path');
             const unassignReviewers = require(path.join(process.env.GITHUB_WORKSPACE, 'devops-scripts', 'unassignReviewers.js'));
             await unassignReviewers({
