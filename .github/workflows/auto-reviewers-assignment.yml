@@ -57,7 +57,7 @@ jobs:
         run: |
           echo "$GITHUB_BASE_REF"
           echo "$GITHUB_HEAD_REF"
-          echo "start from main-pipeline"
+          echo "start from chore/update-devops"
       
       - name: Unassign Reviewers
         uses: actions/github-script@v6
