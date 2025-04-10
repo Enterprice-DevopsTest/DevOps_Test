@@ -1,0 +1,21 @@
+# Use this workflow to write your script, and then run it from GitHub
+# As it is committed into main branch it is visible in GitHub actions UI
+# so you can run this workflow with changes from your current working branch
+# DO NOT REMOVE
+
+name: 'Template pipeline - used in daily development of DevOps features'
+
+on:
+  workflow_dispatch:
+
+jobs:
+  job:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Retrieve Deployment ID from PR
+        run: |
+          echo "Ref: ${{ github.ref }}"
