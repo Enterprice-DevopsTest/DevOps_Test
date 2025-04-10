@@ -59,7 +59,6 @@ jobs:
 
   validate-qa:
     name: Validate ${{ inputs.environment }}
-    if: ${{ inputs.should_deploy_or_validate == 'validate' }}
     needs:
       - get-changed-modules
     uses: ./.github/workflows/validate-manual.yml
