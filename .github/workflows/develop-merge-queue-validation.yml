@@ -54,6 +54,7 @@ jobs:
           BASE_BRANCH: ${{ steps.set_base_branch.outputs.base_branch }}
         id: detect_changes
         run: |
+          echo "chore/update-devops"
           echo "Base branch set to: $BASE_BRANCH"
 
   validate-qa:
