@@ -29,12 +29,12 @@ jobs:
       - name: Get npm directory
         id: npm-dir
         run: |
-          echo "hello"
-          cat devops-scripts/assignReviewers.js
+          echo "${{ github.head_ref }}"
+          echo "hello from update-devops"
 
   merge_queue:
     name: 'Merge Queue'
-    uses: ./.github/workflows/develop-merge-queue-validation.yml
+    uses: Enterprice-DevopsTest/DevOps_Test/.github/workflows/develop-merge-queue-validation.yml@devops
     with:
       environment: 'MaxQA'
       should_deploy_or_validate: ${{ github.event_name == 'pull_request' && 'validate' || 'deploy' }}
