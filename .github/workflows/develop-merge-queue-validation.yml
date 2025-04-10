@@ -30,8 +30,9 @@ jobs:
 
       - name: Retrieve devops-scripts
         env:
-          BRANCH_NAME: ${{ github.base_ref == 'devops' && github.ref || 'devops' }}
+          BRANCH_NAME: ${{ github.base_ref == 'devops' && github.head_ref || 'devops' }}
         run: |
+          echo "$BRANCH_NAME"
           chmod +x ./devops-scripts/getDevopsScripts.sh
           ./devops-scripts/getDevopsScripts.sh $BRANCH_NAME
 
