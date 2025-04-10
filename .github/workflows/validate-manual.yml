@@ -84,10 +84,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Validate src-temp folder changes
-        id: temp_folder
-        run: | 
-          cat src/test.txt
+#      - name: Validate src-temp folder changes
+#        id: temp_folder
+#        run: |
+#          cat src/test.txt
 
 #      - name: Get npm directory
 #        id: npm-dir
@@ -112,10 +112,10 @@ jobs:
 #            ${{ steps.npm-dir.outputs.prefix_dir }}/bin/sf
 #          key: sf-validate-${{ runner.os }}-${{ hashFiles('.github/workflows/validate-manual.yml') }}
 #
-#      - name: Install Salesforce CLI & Plugins
-#        if: steps.cache-sf.outputs.cache-hit != 'true'
-#        run: |
-#          npm install @salesforce/cli@${SF_CLI_VERSION} --global
+      - name: Install Salesforce CLI & Plugins
+        if: steps.cache-sf.outputs.cache-hit != 'true'
+        run: |
+          npm install @salesforce/cli@${SF_CLI_VERSION} --global
 #          echo y | sf plugins install sfdx-git-delta
 #          echo Y | sf plugins install lightning-flow-scanner
 #          sf plugins install @salesforce/sfdx-scanner@4.2.0
@@ -145,9 +145,9 @@ jobs:
 #          chmod +x ./devops-scripts/authenticate.sh
 #          ./devops-scripts/authenticate.sh --set-default
 #
-#      - name: Generate Delta Package for General Sources
-#        run: |
-#          sf sgd source delta --from origin/${{ inputs.base_ref }} --output ./package/src --source ./src --ignore-destructive .destructiveignore
+      - name: Generate Delta Package for General Sources
+        run: |
+          sf sgd source delta --from origin/${{ inputs.base_ref }} --output ./package/src --source ./src --ignore-destructive .destructiveignore
 #
 #      - name: Generate Delta Package Omni-Studio
 #        run: |
