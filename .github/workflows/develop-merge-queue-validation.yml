@@ -24,6 +24,14 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Retrieve devops-scripts
+        env:
+          BRANCH_NAME: ${{ github.base_ref == 'devops' && github.head_ref || 'devops' }}
+        run: |
+          echo "$BRANCH_NAME"
+          chmod +x ./devops-scripts/getDevopsScripts.sh
+          ./devops-scripts/getDevopsScripts.sh $BRANCH_NAME
+      
       - name: Set base branch
         id: set_base_branch
         env:
