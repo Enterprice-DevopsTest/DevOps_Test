@@ -147,6 +147,7 @@ jobs:
 #
       - name: Generate Delta Package for General Sources
         run: |
+          echo y | sf plugins install sfdx-git-delta
           sf sgd source delta --from origin/${{ inputs.base_ref }} --output ./package/src --source ./src --ignore-destructive .destructiveignore
 #
 #      - name: Generate Delta Package Omni-Studio
