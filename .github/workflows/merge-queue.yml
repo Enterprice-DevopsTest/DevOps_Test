@@ -13,7 +13,7 @@ on:
       - main
   merge_group:
     types: [checks_requested]
-    
+
   workflow_dispatch:
     inputs:
       source_branch:
@@ -28,7 +28,7 @@ concurrency:
 jobs:
   merge_queue:
     name: 'Merge Queue'
-    if: github.event_name != 'workflow_call'
+    if: github.event_name != 'workflow_dispatch'
     uses: Enterprice-DevopsTest/DevOps_Test/.github/workflows/develop-merge-queue-validation.yml@devops
     with:
       environment: 'MaxQA'
@@ -37,7 +37,7 @@ jobs:
 
   devops-test:
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_call'
+    if: github.event_name == 'workflow_dispatch'
     steps:
       - name: Dispatch workflow
         uses: actions/github-script@v6
