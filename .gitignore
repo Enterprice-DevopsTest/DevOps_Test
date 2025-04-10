@@ -1,0 +1,12 @@
+.sfpowerscripts
+artifacts
+.sfdx
+.sf
+.npmrc
+.idea
+homes-crm.iml
+/node_modules/
+.vscode
+/IlluminatedCloud/
+/mortgagesfdc-homes-crm.iml
+jsconfig.json

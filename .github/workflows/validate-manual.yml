@@ -1,0 +1,212 @@
+name: 'Manual Validation'
+
+on:
+  workflow_dispatch:
+    inputs:
+      modules_to_validate:
+        description: List of modules to validate (space separated). If left blank then all modules will get validated
+        type: string
+        default: homes-core decision-centre broker-portal integration-services question-management-system doc-comms
+      environment:
+        description: Environment
+        type: environment
+        required: true
+      test_level:
+        description: Apex Unit Tests Level
+        type: choice
+        required: true
+        options:
+          - NoTestRun
+          - RunAllTestsInOrg
+          - RunLocalTests
+          - RunSpecifiedTests
+        default: RunLocalTests  
+      specified_tests:
+        description: Apex Unit Tests (space separated). Keep input empty if you didn't select RunSpecifiedTests
+        type: string
+        required: false
+      base_ref:
+        description: Ref to compare (usually "develop"); Used to generate delta package
+        required: false
+        type: string  
+  workflow_call:
+    secrets:
+        SFDX_AUTH_URL:
+          required: false
+    inputs:
+      environment:
+        description: Environment
+        type: string
+        required: true
+      modules_to_validate:
+        description: List of modules to validate (space separated). If left blank then all modules will get validated
+        required: true
+        type: string
+        default: homes-core decision-centre broker-portal integration-services question-management-system doc-comms
+      base_ref:
+        description: Ref to compare (usually "develop"); Used to generate delta package
+        required: false
+        type: string
+      test_level:
+        description: Apex Unit Tests Level
+        required: false
+        type: string
+      specified_tests:
+        description: Apex Unit Tests (space separated). Keep input empty if you didn't select RunSpecifiedTests
+        required: false
+        type: string  
+      is_release_branch:
+        description: Indicates if this is a release branch
+        type: boolean
+        required: false  
+jobs:
+  validate-changes:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    env:
+      WORKING_BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+      SF_CLI_VERSION: ${{ vars.SF_CLI_VERSION }}
+      SKIP_ORG_INTERACTION: ${{ vars.SKIP_ORG_INTERACTION }}
+      # Sets the deployment destination from sfdx-project.json
+      SF_APPLY_REPLACEMENTS_ON_CONVERT: ${{ vars.SF_APPLY_REPLACEMENTS_ON_CONVERT }}
+      API_MORTGAGE_ONBOARDING_PASSTHRU: ${{ vars.API_MORTGAGE_ONBOARDING_PASSTHRU }}
+      DEPLOY_DESTINATION: ${{ vars.DEPLOY_DESTINATION }}
+      SEVERITY: ${{ vars.SEVERITY }}
+      IGNORED_SCAN_MODULES: ${{ vars.IGNORED_SCAN_MODULES }}
+      IS_OMNI_STUDIO_ENABLED: ${{ vars.IS_OMNI_STUDIO_ENABLED }}
+      IS_RELEASE_BRANCH: ${{ inputs.is_release_branch }}
+    outputs:
+      should_notify: ${{ steps.check.outputs.should_notify }} 
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate src-temp folder changes
+        id: temp_folder
+        run: | 
+          cat src/test.txt
+
+#      - name: Get npm directory
+#        id: npm-dir
+#        run: |
+#          echo "prefix_dir=$(npm config get prefix)" >> ${GITHUB_OUTPUT}
+#          echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
+#
+#      - name: Cache npm
+#        id: cache-npm
+#        uses: actions/cache@v3
+#        with:
+#          path: ${{ steps.npm-dir.outputs.dir }}
+#          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+#
+#      - name: Cache Salesforce CLI
+#        id: cache-sf
+#        uses: actions/cache@v3
+#        with:
+#          path: |
+#            ~/.local/share/sf
+#            ${{ steps.npm-dir.outputs.prefix_dir }}/lib/node_modules/@salesforce
+#            ${{ steps.npm-dir.outputs.prefix_dir }}/bin/sf
+#          key: sf-validate-${{ runner.os }}-${{ hashFiles('.github/workflows/validate-manual.yml') }}
+#
+      - name: Install Salesforce CLI & Plugins
+        run: |
+          npm install @salesforce/cli@${SF_CLI_VERSION} --global
+#
+#      - name: Install JS dependencies
+#        if: steps.cache-npm.outputs.cache-hit != 'true'
+#        run: npm ci
+#
+#      - name: Run Code Analyser
+#        id: code_analyser
+#        run: |
+#          chmod +x ./devops-scripts/runScanner.sh
+#          ./devops-scripts/runScanner.sh ${{ inputs.modules_to_validate }}
+#
+#      - name: Run Flow Analyser
+#        continue-on-error: true
+#        id: flow_analyser
+#        run: |
+#          chmod +x ./devops-scripts/runFlowScanner.sh
+#          ./devops-scripts/runFlowScanner.sh ${{ inputs.modules_to_validate }}
+#
+#      - name: Authenticate
+#        id: auth
+#        env:
+#          SFDXAUTHURL: ${{secrets.SFDX_AUTH_URL}}
+#        run:  |
+#          chmod +x ./devops-scripts/authenticate.sh
+#          ./devops-scripts/authenticate.sh --set-default
+#
+      - name: Generate Delta Package for General Sources
+        run: |
+          echo y | sf plugins install sfdx-git-delta
+          sf sgd source delta --from origin/${{ inputs.base_ref }} --output ./package/src --source ./src --ignore-destructive .destructiveignore
+#
+#      - name: Generate Delta Package Omni-Studio
+#        run: |
+#          sf sgd source delta --from origin/${{ inputs.base_ref }} --output ./package/omni --source ./src-omni
+#
+#      - name: Set Apex Tests Level
+#        if: ${{ inputs.test_level || env.IS_RELEASE_BRANCH == 'true' }}
+#        run: |
+#          chmod +x ./devops-scripts/setApexUnitTestsToRun.sh
+#          ./devops-scripts/setApexUnitTestsToRun.sh "${{ inputs.test_level || vars.RELEASE_UNIT_TEST_LEVEL }}" "${{ inputs.specified_tests }}" # Set TEST_LEVEL and SPECIFIED_TESTS to GITHUB_ENV
+#
+#      - name: Validate Omni Studio Changes on ${{ inputs.environment }}
+#        if: ${{ (inputs.modules_to_validate == '' || contains(inputs.modules_to_validate, 'omni-studio')) && env.IS_OMNI_STUDIO_ENABLED == 'true' }}
+#        id: validate_omni_changes
+#        run: |
+#          chmod +x ./devops-scripts/runOmniStudioValidation.sh
+#          ./devops-scripts/runOmniStudioValidation.sh
+#          grep -qxF "src-omni/omni-studio/" .forceignore || printf "\n\nsrc-omni/omni-studio/\n\n" >> .forceignore
+#
+#      - name: Validate Changes on ${{ inputs.environment }}
+#        id: validate_changes
+#        env:
+#          TEST_LEVEL: ${{ env.TEST_LEVEL }}
+#          SPECIFIED_TESTS: ${{ env.SPECIFIED_TESTS }}
+#        run: |
+#          git config --global --add safe.directory /__w/mortgagesfdc-homes-crm/mortgagesfdc-homes-crm
+#          chmod +x ./devops-scripts/includeChangedBREMetadata.sh
+#          ./devops-scripts/includeChangedBREMetadata.sh
+#          chmod +x ./devops-scripts/runValidations.sh
+#          ./devops-scripts/runValidations.sh ${{ inputs.modules_to_validate }}
+#
+#      - name: Cancel Job
+#        id: cancel
+#        if: ${{ cancelled() }}
+#        run: |
+#          chmod +x ./devops-scripts/cancelJob.sh
+#          if [ -n "${{ steps.validate_changes.outputs.deployment_id }}" ]; then
+#            ./devops-scripts/cancelJob.sh  ${{ steps.validate_changes.outputs.deployment_id }}
+#          elif [ -n "${{ steps.validate_omni_changes.outputs.omni_deployment_id }}" ]; then
+#            ./devops-scripts/cancelJob.sh ${{ steps.validate_omni_changes.outputs.omni_deployment_id }}
+#          fi
+#
+#      - name: Check failure
+#        id: check
+#        if: failure() && (steps.auth.outcome == 'failure' || steps.cancel.outcome == 'failure')
+#        run: echo "should_notify=true" >> $GITHUB_OUTPUT
+#
+#  notify:
+#    runs-on: ubuntu-latest
+#    needs: validate-changes
+#    if: always()
+#    steps:
+#      - uses: actions/checkout@v4
+#
+#      - name: Send Teams notification
+#        if: ${{ needs.validate-changes.outputs.should_notify == 'true' }}
+#        run: |
+#          chmod +x ./devops-scripts/runTeamsNotification.sh
+#          ./devops-scripts/runTeamsNotification.sh
+#        env:
+#          TEAMS_WEBHOOK_URL: ${{ secrets.TEAMS_WEBHOOK_URL }}
+#          GITHUB_REF: ${{ github.ref }}
+#          GITHUB_URL: ${{ github.server_url }}
+#          GITHUB_REPO: ${{ github.repository }}
+#          GITHUB_RUN: ${{ github.run_id }}
