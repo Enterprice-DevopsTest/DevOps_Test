@@ -11,6 +11,10 @@ on:
         required: true
         type: string
 
+  pull_request:
+    branches:
+      - devops
+
 jobs:
   get-changed-modules:
 
@@ -23,6 +27,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Retrieve devops-scripts
+        env:
+          BRANCH_NAME: ${{ github.base_ref == 'devops' && github.head_ref || 'devops' }}
+        run: |
+          chmod +x ./devops-scripts/getDevopsScripts.sh
+          ./devops-scripts/getDevopsScripts.sh $BRANCH_NAME
 
       - name: Set base branch
         id: set_base_branch
