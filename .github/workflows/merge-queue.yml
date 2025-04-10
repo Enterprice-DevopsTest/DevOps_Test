@@ -13,29 +13,40 @@ on:
       - main
   merge_group:
     types: [checks_requested]
+    
+  workflow_dispatch:
+    inputs:
+      source_branch:
+        required: true
+        type: string
+        description: Branch with devops source code
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true    
 
 jobs:
-  show-src:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Get npm directory
-        id: npm-dir
-        run: |
-          echo "${{ github.head_ref }}"
-          echo "hello from update-devops"
-
   merge_queue:
     name: 'Merge Queue'
+    if: github.event_name != 'workflow_call'
     uses: Enterprice-DevopsTest/DevOps_Test/.github/workflows/develop-merge-queue-validation.yml@devops
     with:
       environment: 'MaxQA'
       should_deploy_or_validate: ${{ github.event_name == 'pull_request' && 'validate' || 'deploy' }}
     secrets: inherit
+
+  devops-test:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_call'
+    steps:
+      - name: Dispatch workflow
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ github.token }}
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: 'Enterprice-DevopsTest',
+              repo: 'DevOps_Test',
+              workflow_id: 'develop-merge-queue-validation.yml',
+              ref: '${{ inputs.source_branch }}'
+            })
