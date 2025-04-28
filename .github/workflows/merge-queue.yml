@@ -27,32 +27,23 @@ jobs:
   validate-branch-source:
     name: 'Validate Source Branch for PRs to QA'
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
     env:
       BASE_REF: ${{ github.base_ref }}
       HEAD_REF: ${{ github.head_ref }}
     steps:
       - name: Check if PR source branch is allowed for qa/*
         run: |
-          if [[ "$BASE_REF" == qa/* ]]; then
+          if [[ "$BASE_REF" == qa/* && github.event_name == 'pull_request' ]]; then
             if [[ "$HEAD_REF" != qa_merge/* && $HEAD_REF != develop && $HEAD_REF != release/* && $HEAD_REF != feature/* ]]; then
               echo "You cannot create PR from ${{ github.head_ref }}, PR will be automatically created after merging the ticket branch into the epic"
               echo "Please review the doc: https://santander-group-uk.atlassian.net/wiki/spaces/SFCOE1/pages/685509930/Multi-Stream+Development+Branching"
               exit 1
             fi  
           fi
-
-  show-event:
-    name: 'Show Event'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check if PR source branch is allowed for qa/*
-        run: echo "${{ github.event_name }}"
         
   merge_queue:
     name: 'Merge Queue'
     needs: validate-branch-source
-    if: ${{ github.event_name == 'merge_group' || needs.validate-branch-source.result == 'success' || needs.validate-branch-source.result == 'skipped' }}
     uses: ./.github/workflows/develop-merge-queue-validation.yml
     with:
       environment: ${{ contains(github.base_ref, 'able') && 'AbleQA' || 'MaxQA' }}
