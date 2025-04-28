@@ -86,8 +86,7 @@ jobs:
 
       - name: Validate src-temp folder changes
         id: temp_folder
-        run: | 
-          cat src/test.txt
+        run: echo "Validate"
 
 #      - name: Get npm directory
 #        id: npm-dir
