@@ -9,44 +9,44 @@ on:
       - '.github/workflows/**'
       - 'data/**'
       - 'config/**'
+      - 'src-omni/**'
+      - 'runbook/files/**'
+      - 'src-temp/**'
     branches:
-      - main
+      - develop
+      - develop/*
+      - qa/*
   merge_group:
     types: [checks_requested]
-    
-  workflow_dispatch:
-    inputs:
-      source_branch:
-        required: true
-        type: string
-        description: Branch with devops source code
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true    
 
 jobs:
+  validate-branch-source:
+    name: 'Validate Source Branch for PRs to QA'
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    env:
+      BASE_REF: ${{ github.base_ref }}
+      HEAD_REF: ${{ github.head_ref }}
+    steps:
+      - name: Check if PR source branch is allowed for qa/*
+        run: |
+          if [[ "$BASE_REF" == qa/* ]]; then
+            if [[ "$HEAD_REF" != qa_merge/* && $HEAD_REF != develop && $HEAD_REF != release/* && $HEAD_REF != chore/* ]]; then
+              echo "You cannot create PR from ${{ github.head_ref }}, PR will be automatically created after merging the ticket branch into the epic"
+              echo "Please review the doc: https://santander-group-uk.atlassian.net/wiki/spaces/SFCOE1/pages/685509930/Multi-Stream+Development+Branching"
+              exit 1
+            fi  
+          fi
+
   merge_queue:
     name: 'Merge Queue'
-    if: github.event_name != 'workflow_call'
-    uses: Enterprice-DevopsTest/DevOps_Test/.github/workflows/develop-merge-queue-validation.yml@devops
+    needs: validate-branch-source
+    uses: ./.github/workflows/develop-merge-queue-validation.yml
     with:
-      environment: 'MaxQA'
+      environment: ${{ contains(github.base_ref, 'able') && 'AbleQA' || 'MaxQA' }}
       should_deploy_or_validate: ${{ github.event_name == 'pull_request' && 'validate' || 'deploy' }}
     secrets: inherit
-
-  devops-test:
-    runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_call'
-    steps:
-      - name: Dispatch workflow
-        uses: actions/github-script@v6
-        with:
-          github-token: ${{ github.token }}
-          script: |
-            await github.rest.actions.createWorkflowDispatch({
-              owner: 'Enterprice-DevopsTest',
-              repo: 'DevOps_Test',
-              workflow_id: 'develop-merge-queue-validation.yml',
-              ref: '${{ inputs.source_branch }}'
-            })
