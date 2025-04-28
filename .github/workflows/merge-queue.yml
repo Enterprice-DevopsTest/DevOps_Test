@@ -35,7 +35,7 @@ jobs:
       - name: Check if PR source branch is allowed for qa/*
         run: |
           if [[ "$BASE_REF" == qa/* ]]; then
-            if [[ "$HEAD_REF" != qa_merge/* && $HEAD_REF != develop && $HEAD_REF != release/* && $HEAD_REF != chore/* ]]; then
+            if [[ "$HEAD_REF" != qa_merge/* && $HEAD_REF != develop && $HEAD_REF != release/* && $HEAD_REF != feature/* ]]; then
               echo "You cannot create PR from ${{ github.head_ref }}, PR will be automatically created after merging the ticket branch into the epic"
               echo "Please review the doc: https://santander-group-uk.atlassian.net/wiki/spaces/SFCOE1/pages/685509930/Multi-Stream+Development+Branching"
               exit 1
