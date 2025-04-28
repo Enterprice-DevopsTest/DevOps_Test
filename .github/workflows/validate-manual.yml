@@ -86,8 +86,7 @@ jobs:
 
       - name: Validate src-temp folder changes
         id: temp_folder
-        run: | 
-          cat src/test.txt
+        run: echo "Validate"
 
 #      - name: Get npm directory
 #        id: npm-dir
@@ -112,9 +111,9 @@ jobs:
 #            ${{ steps.npm-dir.outputs.prefix_dir }}/bin/sf
 #          key: sf-validate-${{ runner.os }}-${{ hashFiles('.github/workflows/validate-manual.yml') }}
 #
-      - name: Install Salesforce CLI & Plugins
-        run: |
-          npm install @salesforce/cli@${SF_CLI_VERSION} --global
+      # - name: Install Salesforce CLI & Plugins
+      #   run: |
+      #     npm install @salesforce/cli@${SF_CLI_VERSION} --global
 #
 #      - name: Install JS dependencies
 #        if: steps.cache-npm.outputs.cache-hit != 'true'
@@ -141,10 +140,10 @@ jobs:
 #          chmod +x ./devops-scripts/authenticate.sh
 #          ./devops-scripts/authenticate.sh --set-default
 #
-      - name: Generate Delta Package for General Sources
-        run: |
-          echo y | sf plugins install sfdx-git-delta
-          sf sgd source delta --from origin/${{ inputs.base_ref }} --output ./package/src --source ./src --ignore-destructive .destructiveignore
+      # - name: Generate Delta Package for General Sources
+      #   run: |
+      #     echo y | sf plugins install sfdx-git-delta
+      #     sf sgd source delta --from origin/${{ inputs.base_ref }} --output ./package/src --source ./src --ignore-destructive .destructiveignore
 #
 #      - name: Generate Delta Package Omni-Studio
 #        run: |

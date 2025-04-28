@@ -1,0 +1,43 @@
+name: 'Manual Deployment'
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: Environment
+        type: string
+        required: true
+      modules_to_deploy:
+        description: List of modules to deploy (space separated). If left blank then all modules will get deployed
+        required: true
+        type: string
+        default: homes-core decision-centre broker-portal integration-services question-management-system doc-comms
+      base_ref:
+        description: Ref to compare (usually "develop"); Used to generate delta package
+        required: false
+        type: string
+      test_level:
+        description: Apex Unit Tests Level
+        required: false
+        type: string
+      specified_tests:
+        description: Apex Unit Tests (space separated). Keep input empty if you didn't select RunSpecifiedTests
+        required: false
+        type: string  
+      is_release_branch:
+        description: Indicates if this is a release branch
+        type: boolean
+        required: false
+
+jobs:
+  deploy-changes:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get npm directory
+        id: npm-dir
+        run: echo "deploy"
