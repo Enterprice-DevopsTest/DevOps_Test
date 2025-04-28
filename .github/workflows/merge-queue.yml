@@ -13,7 +13,7 @@ on:
       - 'runbook/files/**'
       - 'src-temp/**'
     branches:
-      - develop
+      - main
       - develop/*
       - qa/*
   merge_group:
