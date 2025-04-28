@@ -45,6 +45,7 @@ jobs:
   merge_queue:
     name: 'Merge Queue'
     needs: validate-branch-source
+    if: always()
     uses: ./.github/workflows/develop-merge-queue-validation.yml
     with:
       environment: ${{ contains(github.base_ref, 'able') && 'AbleQA' || 'MaxQA' }}
