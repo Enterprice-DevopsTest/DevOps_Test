@@ -42,6 +42,13 @@ jobs:
             fi  
           fi
 
+  show-event:
+    name: 'Show Event'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if PR source branch is allowed for qa/*
+        run: echo "${github.event_name}"
+        
   merge_queue:
     name: 'Merge Queue'
     needs: validate-branch-source
