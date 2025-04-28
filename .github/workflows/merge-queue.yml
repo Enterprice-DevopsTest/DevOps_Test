@@ -52,7 +52,7 @@ jobs:
   merge_queue:
     name: 'Merge Queue'
     needs: validate-branch-source
-    if: needs.validate-branch-source.result == 'success' || needs.validate-branch-source.result == 'skipped'
+    if: ${{ github.event_name == 'merge_group' || needs.validate-branch-source.result == 'success' || needs.validate-branch-source.result == 'skipped' }}
     uses: ./.github/workflows/develop-merge-queue-validation.yml
     with:
       environment: ${{ contains(github.base_ref, 'able') && 'AbleQA' || 'MaxQA' }}
