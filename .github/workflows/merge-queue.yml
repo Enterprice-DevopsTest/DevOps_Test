@@ -15,7 +15,7 @@ on:
     branches:
       - develop
       - develop/*
-      - qa/*
+      - qa/able
   merge_group:
     types: [checks_requested]
 
@@ -34,6 +34,7 @@ jobs:
     steps:
       - name: Check if PR source branch is allowed for qa/*
         run: |
+          echo "ref: ${{ github.base_ref }}"
           if [[ "$BASE_REF" == qa/* ]]; then
             if [[ "$HEAD_REF" != qa_merge/* && $HEAD_REF != develop && $HEAD_REF != release/* && $HEAD_REF != chore/* ]]; then
               echo "You cannot create PR from ${{ github.head_ref }}, PR will be automatically created after merging the ticket branch into the epic"
@@ -42,6 +43,15 @@ jobs:
             fi  
           fi
 
+  
+  see-ref:
+    name: 'Ref'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ref
+        run: |
+          echo "ref: ${{ github.base_ref }}"
+  
   merge_queue:
     name: 'Merge Queue'
     needs: validate-branch-source
