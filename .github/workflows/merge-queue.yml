@@ -47,10 +47,13 @@ jobs:
   see-ref:
     name: 'Ref'
     runs-on: ubuntu-latest
+    env:
+      REF: ${{ contains(github.ref, 'qa/able') && 'AbleQA' || 'MaxQA' }}
     steps:
       - name: Ref
         run: |
-          echo "ref: ${{ github.ref_name }}"
+          echo "$REF"
+          echo "ref {{ github.ref }}"
   
   merge_queue:
     name: 'Merge Queue'
@@ -58,6 +61,6 @@ jobs:
     if: always()
     uses: ./.github/workflows/develop-merge-queue-validation.yml
     with:
-      environment: ${{ contains(github.ref_name, 'able') && 'AbleQA' || 'MaxQA' }}
+      environment: ${{ contains(github.ref, 'able') && 'AbleQA' || 'MaxQA' }}
       should_deploy_or_validate: ${{ github.event_name == 'pull_request' && 'validate' || 'deploy' }}
     secrets: inherit
