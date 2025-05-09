@@ -58,7 +58,8 @@ on:
       is_release_branch:
         description: Indicates if this is a release branch
         type: boolean
-        required: false  
+        required: false
+
 jobs:
   validate-changes:
     # The type of runner that the job will run on
@@ -87,7 +88,8 @@ jobs:
       - name: Validate src-temp folder changes
         id: temp_folder
         run: | 
-          echo "Validate"
+          echo "${{ inputs.environment }}"
+          echo "${{ inputs.inputs.base_ref }}"
 
 #      - name: Get npm directory
 #        id: npm-dir

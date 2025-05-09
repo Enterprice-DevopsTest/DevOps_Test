@@ -1,7 +1,7 @@
 name: 'Validation of PR to Able/Max Develop branch'
 on:
   pull_request:
-    types: [ opened, reopened, synchronize, labeled ]
+    types: [ opened, reopened, synchronize, labeled, unlabeled ]
     paths:
       - 'src/**'
       - 'src-org-dependent/**'
@@ -15,27 +15,54 @@ on:
     branches:
       - develop
       - develop/*
-      - qa/able
+      - qa/*
   merge_group:
     types: [checks_requested]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true    
+  cancel-in-progress: true
 
 jobs:
+  set-base-branch:
+    outputs:
+      base_branch: ${{ steps.set_base_branch.outputs.base_branch }}
+    runs-on: ubuntu-latest
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Print
+        run: |
+          echo ${{ github.event.merge_group.base_ref }}
+          echo ${{ github.event.merge_group }}
+          echo ${{ github }}
+
+      - name: Set base branch
+        id: set_base_branch
+        env:
+          REF: ${{ github.base_ref || github.event.merge_group.base_ref }}
+        run: |
+          if [[ $REF == refs/heads/* ]]; then
+            base_branch=$(echo $REF | sed 's|^refs/heads/||')
+          else
+            base_branch=$REF
+          fi
+          echo "Base branch set to: $base_branch"
+          echo "base_branch=$base_branch" >> $GITHUB_OUTPUT
+
   validate-branch-source:
     name: 'Validate Source Branch for PRs to QA'
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
     env:
       BASE_REF: ${{ github.base_ref }}
       HEAD_REF: ${{ github.head_ref }}
     steps:
       - name: Check if PR source branch is allowed for qa/*
         run: |
-          echo "ref: ${{ github.base_ref }}"
-          if [[ "$BASE_REF" == qa/* ]]; then
+          if [[ "$BASE_REF" == qa/* && github.event_name == 'pull_request' ]]; then
             if [[ "$HEAD_REF" != qa_merge/* && $HEAD_REF != develop && $HEAD_REF != release/* && $HEAD_REF != chore/* ]]; then
               echo "You cannot create PR from ${{ github.head_ref }}, PR will be automatically created after merging the ticket branch into the epic"
               echo "Please review the doc: https://santander-group-uk.atlassian.net/wiki/spaces/SFCOE1/pages/685509930/Multi-Stream+Development+Branching"
@@ -43,21 +70,14 @@ jobs:
             fi  
           fi
 
-  
-  see-ref:
-    name: 'Ref'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Ref
-        run: |
-          echo "ref: ${{ github.base_ref }}"
-  
   merge_queue:
     name: 'Merge Queue'
-    needs: validate-branch-source
-    if: always()
+    needs:
+      - set-base-branch
+      - validate-branch-source
     uses: ./.github/workflows/develop-merge-queue-validation.yml
     with:
-      environment: ${{ contains(github.ref_name, 'able') && 'AbleQA' || 'MaxQA' }}
+      environment: ${{ contains(needs.set-base-branch.outputs.base_branch, 'able') && 'AbleQA' || 'MaxQA' }}
       should_deploy_or_validate: ${{ github.event_name == 'pull_request' && 'validate' || 'deploy' }}
+      base_branch: ${{ needs.set-base-branch.outputs.base_branch }}
     secrets: inherit
