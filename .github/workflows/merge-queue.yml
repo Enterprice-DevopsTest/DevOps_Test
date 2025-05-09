@@ -58,6 +58,6 @@ jobs:
     if: always()
     uses: ./.github/workflows/develop-merge-queue-validation.yml
     with:
-      environment: ${{ contains(github.base_ref, 'able') && 'AbleQA' || 'MaxQA' }}
+      environment: ${{ contains(github.ref_name, 'able') && 'AbleQA' || 'MaxQA' }}
       should_deploy_or_validate: ${{ github.event_name == 'pull_request' && 'validate' || 'deploy' }}
     secrets: inherit
