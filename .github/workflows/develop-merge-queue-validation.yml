@@ -72,7 +72,6 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - validate-qa
-      - validate-ci-org
       - deploy-to-qa
     if: always()
     steps:
