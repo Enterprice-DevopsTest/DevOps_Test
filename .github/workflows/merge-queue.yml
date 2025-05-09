@@ -72,7 +72,9 @@ jobs:
 
   merge_queue:
     name: 'Merge Queue'
-    needs: validate-branch-source
+    needs:
+      - set-base-branch
+      - validate-branch-source
     uses: ./.github/workflows/develop-merge-queue-validation.yml
     with:
       environment: ${{ contains(needs.set-base-branch.outputs.base_branch, 'able') && 'AbleQA' || 'MaxQA' }}
