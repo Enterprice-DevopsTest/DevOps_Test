@@ -48,12 +48,12 @@ jobs:
     name: 'Ref'
     runs-on: ubuntu-latest
     env:
-      REF: ${{ contains(github.ref, 'qa/able') && 'AbleQA' || 'MaxQA' }}
+      REF: ${{ contains(github.ref, 'able') && 'AbleQA' || 'MaxQA' }}
     steps:
       - name: Ref
         run: |
           echo "$REF"
-          echo "ref {{ github.ref }}"
+          echo "ref ${{ github.ref }}"
   
   merge_queue:
     name: 'Merge Queue'
