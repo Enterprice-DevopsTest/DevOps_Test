@@ -87,7 +87,8 @@ jobs:
       - name: Validate src-temp folder changes
         id: temp_folder
         run: | 
-          echo "Validate"
+          echo "${{ inputs.environment }}"
+          echo "${{ inputs.inputs.base_ref }}"
 
 #      - name: Get npm directory
 #        id: npm-dir
