@@ -50,7 +50,7 @@ jobs:
     steps:
       - name: Ref
         run: |
-          echo "ref: ${{ github.base_ref }}"
+          echo "ref: ${{ github.ref_name }}"
   
   merge_queue:
     name: 'Merge Queue'
