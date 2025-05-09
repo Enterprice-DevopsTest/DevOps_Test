@@ -7,11 +7,6 @@ on:
         description: List of modules to validate (space separated). If left blank then all modules will get validated
         type: string
         default: homes-core decision-centre broker-portal integration-services question-management-system doc-comms
-      modules_to_deploy:
-        description: List of modules to validate (space separated). If left blank then all modules will get validated
-        required: true
-        type: string
-        default: homes-core decision-centre broker-portal integration-services question-management-system doc-comms
       environment:
         description: Environment
         type: environment
@@ -64,11 +59,6 @@ on:
         description: Indicates if this is a release branch
         type: boolean
         required: false
-      modules_to_deploy:
-        description: List of modules to validate (space separated). If left blank then all modules will get validated
-        required: true
-        type: string
-        default: homes-core decision-centre broker-portal integration-services question-management-system doc-comms
 
 jobs:
   validate-changes:
