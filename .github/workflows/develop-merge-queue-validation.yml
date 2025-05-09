@@ -63,7 +63,7 @@ jobs:
     uses: ./.github/workflows/validate-manual.yml
     with:
       environment: ${{ inputs.environment }}
-      modules_to_deploy: ${{ needs.get-changed-modules.outputs.changed_modules }}
+      modules_to_validate: ${{ needs.get-changed-modules.outputs.changed_modules }}
       base_ref: ${{ inputs.base_branch }}
     secrets: inherit
 
