@@ -42,19 +42,6 @@ jobs:
               exit 1
             fi  
           fi
-
-  
-  see-ref:
-    name: 'Ref'
-    runs-on: ubuntu-latest
-    env:
-      REF: "${{ (github.event_name == 'pull_request' && contains(github.base_ref, 'able')) || (github.event_name == 'merge_group' && contains(github.event.merge_group.base_ref, 'able')) ? 'AbleQA' : 'MaxQA' }}"
-
-    steps:
-      - name: Ref
-        run: |
-          echo "$REF"
-          echo "ref ${{ github.ref }}"
   
   merge_queue:
     name: 'Merge Queue'
