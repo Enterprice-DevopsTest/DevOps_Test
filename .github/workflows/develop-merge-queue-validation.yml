@@ -34,8 +34,9 @@ jobs:
         id: detect_changes
         run: |
           echo "Base branch set to: $BASE_BRANCH"
-          chmod +x ./devops-scripts/findChangedModules.sh
-          ./devops-scripts/findChangedModules.sh origin/$BASE_BRANCH src/
+          echo "ENV set to ${{ inputs.environment }}"
+#          chmod +x ./devops-scripts/findChangedModules.sh
+#          ./devops-scripts/findChangedModules.sh origin/$BASE_BRANCH src/
 
   validate-qa:
     name: Validate ${{ inputs.environment }}
@@ -77,8 +78,6 @@ jobs:
     steps:
       - name: Check ${{ inputs.should_deploy_or_validate }} job
         run: |
-          echo "${{ inputs.environment }}"
-          echo "${{ inputs.base_branch }}"
           if [[ "${{ needs.validate-qa.result }}" == "failure" || "${{ needs.validate-qa.result }}" == "cancelled" ]]; then
             echo "${{ inputs.environment }} validation was failed"
             exit 1
