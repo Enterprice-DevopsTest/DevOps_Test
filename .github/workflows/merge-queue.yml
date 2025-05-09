@@ -44,6 +44,14 @@ jobs:
           fi
 
   
+  see-ref:
+    name: 'Ref'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ref
+        run: |
+          echo "ref: ${{ github.base_ref }}"
+  
   merge_queue:
     name: 'Merge Queue'
     needs: validate-branch-source
